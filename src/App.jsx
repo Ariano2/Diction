@@ -1,7 +1,17 @@
+import Head from './components/Head';
+import Search from './components/Search';
+import Body from './components/Body';
+import { Provider } from 'react-redux';
+import appStore from './appStore';
+
 function App() {
   return (
     <>
-      <p className="bg-red-400 text-3xl">Hello Messi</p>
+      <Provider store={appStore}>
+        <Head />
+        <Search />
+        <Body />
+      </Provider>
     </>
   );
 }
