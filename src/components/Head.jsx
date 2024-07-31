@@ -7,7 +7,9 @@ const Head = () => {
       <h1>
         <span className="text-3xl">Diction</span> - The minimalistic dictionary
       </h1>
-      <span>{onlineStatus ? 'Online : 🟢' : 'Offline : 🔴'}</span>
+      <span className="hidden md:inline-block">
+        {onlineStatus ? 'Online : 🟢' : 'Offline : 🔴'}
+      </span>
     </div>
   );
 };

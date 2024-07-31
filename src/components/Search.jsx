@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import useEnglishWordList from '../utils/useEnglishWordList';
 import { DICTIONARY_API_URL } from '../constants';
 import { useDispatch } from 'react-redux';
@@ -9,23 +9,29 @@ const Search = () => {
   const [words, setWords] = useState();
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [search, setSearch] = useState();
   useEnglishWordList(setWords);
   const searchTerm = useRef();
 
-  const searchSuggestions = () => {
-    console.log(searchTerm.current.value);
-    if (searchTerm.current.value === '') {
-      setSuggestions([]);
-    } else {
-      setSuggestions(
-        words
-          .filter((word) =>
-            word.startsWith(searchTerm.current.value.toLowerCase())
-          )
-          .slice(0, 10)
-      );
-    }
-  };
+  useEffect(() => {
+    const searchSuggestions = () => {
+      if (searchTerm.current.value === '') {
+        setSuggestions([]);
+      } else {
+        setSuggestions(
+          words
+            .filter((word) =>
+              word.startsWith(searchTerm.current.value.toLowerCase())
+            )
+            .slice(0, 10)
+        );
+      }
+    };
+    const time = setTimeout(searchSuggestions, 500);
+    return () => {
+      clearTimeout(time);
+    };
+  }, [search]);
 
   const handleSearchSubmit = (word) => {
     const fetchWordData = async () => {
@@ -33,9 +39,10 @@ const Search = () => {
       const json = await data.json();
       dispatch(removeWordData());
       dispatch(addWordData(json));
-      searchTerm.current.value = '';
     };
-    fetchWordData();
+    if (word !== '') {
+      fetchWordData();
+    }
   };
 
   return (
@@ -50,8 +57,8 @@ const Search = () => {
             className="py-2 px-4 w-6/12 border border-black rounded-l-lg"
             placeholder="Search For Words"
             ref={searchTerm}
+            onChange={() => setSearch(searchTerm.current.value)}
             onFocus={() => setShowSuggestions(true)}
-            onChange={searchSuggestions}
             onBlur={() => {
               setTimeout(() => setShowSuggestions(false), 200);
             }}
@@ -75,7 +82,6 @@ const Search = () => {
                   key={suggestion}
                   className="p-2 hover:bg-slate-200 shadow-lg shadow-slate-200 z-10 hover:underline"
                   onClick={(e) => {
-                    console.log('clicked');
                     handleSearchSubmit(e.target.textContent);
                   }}
                 >
